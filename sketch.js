@@ -1,16 +1,17 @@
 let mic, fft;
 let isMicStarted = false;
+let isAppStarted = false; 
 
 function setup() {
-  createCanvas(800, 400);
-  textAlign(CENTER);
-  textSize(20);
-  text("Click to start microphone", width / 2, height / 2);
+  let cnv = createCanvas(800, 400);
+  cnv.parent(document.body); 
+  noLoop(); 
 }
 
 function draw() {
-  background(0);
-  if (isMicStarted) {
+  background(255);
+
+  if (isAppStarted && isMicStarted) {
     let spectrum = fft.analyze();
     noStroke();
     fill(0, 255, 0);
@@ -34,13 +35,16 @@ function draw() {
   }
 }
 
-function mousePressed() {
-  if (!isMicStarted) {
-    mic = new p5.AudioIn();
-    mic.start(() => {
-      fft = new p5.FFT();
-      fft.setInput(mic);
-      isMicStarted = true;
-    });
-  }
+
+function startSketch() {
+  isAppStarted = true;
+
+
+  mic = new p5.AudioIn();
+  mic.start(() => {
+    fft = new p5.FFT();
+    fft.setInput(mic);
+    isMicStarted = true;
+    loop(); 
+  });
 }
