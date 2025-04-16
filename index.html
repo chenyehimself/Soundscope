@@ -7,8 +7,73 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
     <link rel="stylesheet" href="style.css" />
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+        background-color: #000;
+        color: white;
+      }
+      #splash {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: linear-gradient(to bottom, #111, #000);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        z-index: 10;
+        padding: 2rem;
+        box-sizing: border-box;
+      }
+      #splash h1 {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        color: #00ffff;
+        font-weight: bold;
+      }
+      #splash p {
+        font-size: 1.2rem;
+        line-height: 1.5;
+        max-width: 600px;
+        margin: 0 auto;
+        color: #ccc;
+      }
+      #splash button {
+        margin-top: 2rem;
+        padding: 1rem 2.5rem;
+        font-size: 1.2rem;
+        background-color: #00ffff;
+        color: #000;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+      #splash button:hover {
+        background-color: #00cccc;
+      }
+    </style>
   </head>
   <body>
+    <div id="splash">
+      <h1>🎧 SoundScope</h1>
+      <p>Explore the invisible shape of sound.<br />Click below to begin.</p>
+      <button onclick="startApp()">START</button>
+    </div>
     <script src="sketch.js"></script>
+    <script>
+      function startApp() {
+        document.getElementById('splash').style.display = 'none';
+        if (typeof startSketch === 'function') {
+          startSketch();
+        }
+      }
+    </script>
   </body>
 </html>
