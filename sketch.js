@@ -11,35 +11,47 @@ function setup() {
 }
 
 function draw() {
-  background(255);
-
-  if (isAppStarted && (isMicStarted || isFilePlaying)) {
-    let spectrum = fft.analyze();
-
-    noStroke();
-    fill(0);
-    for (let i = 0; i < spectrum.length; i++) {
-      let logIndex = log(i + 1) / log(spectrum.length); 
-      let x = map(logIndex, 0, 1, 0, width);
-      let nextLogIndex = log(i + 2) / log(spectrum.length);
-      let w = map(nextLogIndex, 0, 1, 0, width) - x;
-    
-      let h = -height + map(spectrum[i], 0, 255, height, 0);
-      rect(x, height, w, h);
-    }
-
-   let waveform = fft.waveform();
-   noFill();
-   stroke(0);
-   beginShape();
-   for (let i = 0; i < waveform.length; i++) {
-      let x = map(i, 0, waveform.length, 0, width);
-      let y = map(waveform[i], -1, 1, 0, height);
-      vertex(x, y);
-    }
-    endShape();
-  }
-}
+   background(255);
+ 
+   if (isAppStarted && (isMicStarted || isFilePlaying)) {
+     let spectrum = fft.analyze();
+     let nyquist = 22050; // 采样频率的一半
+     let spectrumLength = spectrum.length;
+ 
+     noStroke();
+     fill(0);
+ 
+     // 对数频率映射（20Hz到nyquist频率）
+     let minFreq = 20;
+     let maxFreq = nyquist;
+ 
+     for (let i = 0; i < spectrumLength; i++) {
+       // 计算当前频率（线性）
+       let freq = map(i, 0, spectrumLength, 0, nyquist);
+       
+       // 对数映射频率到屏幕X轴
+       let logFreq = map(log(freq), log(minFreq), log(maxFreq), 0, width);
+       let nextFreq = map(i + 1, 0, spectrumLength, 0, nyquist);
+       let nextLogFreq = map(log(nextFreq), log(minFreq), log(maxFreq), 0, width);
+       
+       let w = nextLogFreq - logFreq;
+       let h = -height + map(spectrum[i], 0, 255, height, 0);
+       
+       rect(logFreq, height, w, h);
+     }
+ 
+     let waveform = fft.waveform();
+     noFill();
+     stroke(0);
+     beginShape();
+     for (let i = 0; i < waveform.length; i++) {
+       let x = map(i, 0, waveform.length, 0, width);
+       let y = map(waveform[i], -1, 1, 0, height);
+       vertex(x, y);
+     }
+     endShape();
+   }
+ }
 
 function startSketch() {
   isAppStarted = true;
