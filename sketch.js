@@ -5,6 +5,9 @@ let uploadedSound;
 let isFilePlaying = false;
 let isPaused = false;
 
+// Reference to progress bar
+const progressBar = document.getElementById('progress');
+
 function setup() {
   let cnv = createCanvas(800, 400);
   cnv.parent(document.body);
@@ -57,6 +60,15 @@ function draw() {
        vertex(x, y);
      }
      endShape();
+
+     // Update progress bar position
+     if (uploadedSound && uploadedSound.isLoaded()) {
+       const curr = uploadedSound.currentTime();
+       const dur = uploadedSound.duration();
+       if (dur > 0) {
+         progressBar.value = (curr / dur) * progressBar.max;
+       }
+     }
    }
  }
 
@@ -110,3 +122,15 @@ document
       isPaused = false;
     }
   });
+
+// Seek functionality on progress bar drag
+progressBar.addEventListener('input', function () {
+  if (!uploadedSound || !uploadedSound.isLoaded()) return;
+  const dur = uploadedSound.duration();
+  const newTime = (this.value / this.max) * dur;
+  const wasPlaying = uploadedSound.isPlaying();
+  uploadedSound.jump(newTime);
+  if (!wasPlaying) {
+    uploadedSound.pause();
+  }
+});
