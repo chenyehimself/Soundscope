@@ -86,14 +86,12 @@
       <button onclick="startApp()">START</button>
     </div>
 
-    <div id="controls" style="position: absolute; top: 20px; left: 20px; z-index: 20;">
-      <input type="file" id="audio-upload" accept="audio/*" />
-      <button
-        id="pause-play"
-        style="margin-top: 10px; display: block; background-color: #000; color: #fff; border: none; padding: 6px 14px; border-radius: 4px; font-weight: bold; cursor: pointer;">
-        ⏸️ Pause
-      </button>
-    </div>
+    <!-- 上传音频 -->
+    <input type="file" id="audio-upload" accept="audio/*" />
+
+    <!-- 暂停/播放 -->
+    <button id="pause-play">⏸️ Pause</button>
+
     <script src="sketch.js"></script>
     <script>
       function startApp() {

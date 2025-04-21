@@ -15,33 +15,22 @@ function draw() {
   background(255);
 
   if (isAppStarted && (isMicStarted || isFilePlaying)) {
-    // Grouped log-spaced bars for better low-frequency resolution
-    const spectrum = fft.analyze();
-    const nyquist = 22050;
-    const minFreq = 20;
-    const maxFreq = nyquist;
-    const barCount = 64; // number of bars
+    let spectrum = fft.analyze();
+
     noStroke();
     fill(0);
-
-    for (let j = 0; j < barCount; j++) {
-      // compute log-spaced frequency range for this bar
-      const f1 = exp(log(minFreq) + (j / barCount) * (log(maxFreq / minFreq)));
-      const f2 = exp(log(minFreq) + ((j + 1) / barCount) * (log(maxFreq / minFreq)));
-      // map frequencies to spectrum indices
-      const i1 = constrain(floor(map(f1, 0, nyquist, 0, spectrum.length)), 0, spectrum.length - 1);
-      const i2 = constrain(floor(map(f2, 0, nyquist, 0, spectrum.length)), 0, spectrum.length - 1);
-      // average magnitude in this range
-      let sum = 0;
-      for (let k = i1; k <= i2; k++) {
-        sum += spectrum[k];
-      }
-      const avg = sum / max(1, (i2 - i1 + 1));
-      // draw bar
-      const x = (j / barCount) * width;
-      const w = width / barCount;
-      const h = -height + map(avg, 0, 255, height, 0);
-      rect(x, height, w, h);
+    for (let i = 1; i < spectrum.length; i++) {
+      // 对数频率映射
+      let nyquist = 22050;
+      let minFreq = 20;
+      let maxFreq = nyquist;
+      let freq = map(i, 0, spectrum.length, minFreq, nyquist);
+      let prevFreq = map(i - 1, 0, spectrum.length, minFreq, nyquist);
+      let x = map(log(freq), log(minFreq), log(maxFreq), 0, width);
+      let x0 = map(log(prevFreq), log(minFreq), log(maxFreq), 0, width);
+      let w = x - x0;
+      let h = -height + map(spectrum[i], 0, 255, height, 0);
+      rect(x0, height, w, h);
     }
 
     let waveform = fft.waveform();
