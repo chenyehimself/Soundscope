@@ -57,6 +57,26 @@
       #splash button:hover {
         background-color: #333;
       }
+      /* 上传/暂停按钮样式 */
+      #audio-upload {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 20;
+      }
+      #pause-play {
+        position: absolute;
+        top: 60px;
+        left: 20px;
+        z-index: 20;
+        background-color: #000;
+        color: #fff;
+        border: none;
+        padding: 6px 14px;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
@@ -65,12 +85,13 @@
       <p>Explore the invisible shape of sound.<br />Click below to begin.</p>
       <button onclick="startApp()">START</button>
     </div>
-    <button
-      id="pause-play"
-      style="position: absolute; top: 20px; left: 160px; z-index: 20; background-color: #000; color: #fff; border: none; padding: 6px 14px; border-radius: 4px; font-weight: bold; cursor: pointer;">
-      ⏸️ Pause
-    </button>
-    <input type="file" id="audio-upload" accept="audio/*" style="position: absolute; top: 20px; left: 20px; z-index: 20;" />
+
+    <!-- 上传音频 -->
+    <input type="file" id="audio-upload" accept="audio/*" />
+
+    <!-- 暂停/播放 -->
+    <button id="pause-play">⏸️ Pause</button>
+
     <script src="sketch.js"></script>
     <script>
       function startApp() {
@@ -80,12 +101,14 @@
         }
       }
 
-      document.getElementById('audio-upload').addEventListener('change', function(e) {
-        const uploadedFile = URL.createObjectURL(e.target.files[0]);
-        if (typeof handleUploadedAudio === 'function') {
-          handleUploadedAudio(uploadedFile);
-        }
-      });
+      document
+        .getElementById('audio-upload')
+        .addEventListener('change', function (e) {
+          const fileURL = URL.createObjectURL(e.target.files[0]);
+          if (typeof handleUploadedAudio === 'function') {
+            handleUploadedAudio(fileURL);
+          }
+        });
     </script>
   </body>
 </html>
