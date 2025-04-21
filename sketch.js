@@ -26,11 +26,12 @@ function draw() {
       let maxFreq = nyquist;
       let freq = map(i, 0, spectrum.length, minFreq, nyquist);
       let prevFreq = map(i - 1, 0, spectrum.length, minFreq, nyquist);
-      let x = map(log(freq), log(minFreq), log(maxFreq), 0, width);
-      let x0 = map(log(prevFreq), log(minFreq), log(maxFreq), 0, width);
-      let w = x - x0;
+      const logF1 = log(freq);
+      const logF2 = log(prevFreq);
+      const x = map(logF1, log(minFreq), log(maxFreq), 0, width);
+      const w = map(logF2, log(minFreq), log(maxFreq), 0, width) - x;
       let h = -height + map(spectrum[i], 0, 255, height, 0);
-      rect(x0, height, w, h);
+      rect(x, height, w, h);
     }
 
     let waveform = fft.waveform();
