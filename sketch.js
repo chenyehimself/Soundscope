@@ -76,7 +76,7 @@ window.handleUploadedAudio = function (fileURL) {
   }
   uploadedSound = loadSound(fileURL, () => {
     fft = new p5.FFT();
-    fft.smooth(0.1);
+    fft.smooth(10);
     fft.setInput(uploadedSound);
     uploadedSound.play();
     isAppStarted = true;
