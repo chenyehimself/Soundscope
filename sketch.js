@@ -28,11 +28,11 @@ function draw() {
       rect(x, height, w, h);
     }
 
-    let waveform = fft.waveform();
-    noFill();
-    stroke(0);
-    beginShape();
-    for (let i = 0; i < waveform.length; i++) {
+   let waveform = fft.waveform();
+   noFill();
+   stroke(0);
+   beginShape();
+   for (let i = 0; i < waveform.length; i++) {
       let x = map(i, 0, waveform.length, 0, width);
       let y = map(waveform[i], -1, 1, 0, height);
       vertex(x, y);
