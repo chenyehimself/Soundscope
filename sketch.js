@@ -7,7 +7,7 @@ let isFilePlaying = false;
 function setup() {
   let cnv = createCanvas(800, 400);
   cnv.parent(document.body);
-  noLoop(); // 默认不运行，等待点击 START
+  noLoop();
 }
 
 function draw() {
@@ -40,27 +40,20 @@ function draw() {
 function startSketch() {
   isAppStarted = true;
 
-  // 初始化 Tone.js，确保在用户点击后启动
-  Tone.start().then(() => {
-    console.log("Tone.js started successfully");
-
-    mic = new p5.AudioIn();
-    mic.start(
-      () => {
-        console.log("Mic started successfully");
-        fft = new p5.FFT();
-        fft.setInput(mic);
-        isMicStarted = true;
-        loop(); 
-      },
-      (err) => {
-        console.error("Mic failed to start:", err);
-        alert("Microphone access was denied or unavailable. Please allow microphone access in your browser.");
-      }
-    );
-  }).catch((err) => {
-    console.error("Tone.js failed to start:", err);
-  });
+  mic = new p5.AudioIn();
+  mic.start(
+    () => {
+      console.log("Mic started successfully");
+      fft = new p5.FFT();
+      fft.setInput(mic);
+      isMicStarted = true;
+      loop(); 
+    },
+    (err) => {
+      console.error("Mic failed to start:", err);
+      alert("Microphone access was denied or unavailable. Please allow microphone access in your browser.");
+    }
+  );
 }
 
 window.handleUploadedAudio = function(fileURL) {
