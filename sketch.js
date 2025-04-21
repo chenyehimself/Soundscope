@@ -88,3 +88,21 @@ window.handleUploadedAudio = function(fileURL) {
     loop();
   });
 };
+
+let isPaused = false;
+
+document.getElementById('pause-play').addEventListener('click', function () {
+  if (uploadedSound) {
+    if (uploadedSound.isPlaying()) {
+      uploadedSound.pause();
+      this.textContent = "▶️ Play";
+      isPaused = true;
+      noLoop();
+    } else {
+      uploadedSound.play();
+      this.textContent = "⏸️ Pause";
+      isPaused = false;
+      loop();
+    }
+  }
+});
