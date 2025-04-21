@@ -57,18 +57,18 @@
       #splash button:hover {
         background-color: #333;
       }
-      /* 上传/暂停按钮样式 */
-      #audio-upload {
+      #controls {
         position: absolute;
         top: 20px;
         left: 20px;
         z-index: 20;
       }
+      #controls input,
+      #controls button {
+        display: block;
+        margin-bottom: 10px;
+      }
       #pause-play {
-        position: absolute;
-        top: 60px;
-        left: 20px;
-        z-index: 20;
         background-color: #000;
         color: #fff;
         border: none;
@@ -76,6 +76,14 @@
         border-radius: 4px;
         font-weight: bold;
         cursor: pointer;
+      }
+      #progress {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60%;
+        z-index: 20;
       }
     </style>
   </head>
@@ -86,11 +94,12 @@
       <button onclick="startApp()">START</button>
     </div>
 
-    <!-- 上传音频 -->
-    <input type="file" id="audio-upload" accept="audio/*" />
+    <div id="controls">
+      <input type="file" id="audio-upload" accept="audio/*" />
+      <button id="pause-play">⏸️ Pause</button>
+    </div>
 
-    <!-- 暂停/播放 -->
-    <button id="pause-play">⏸️ Pause</button>
+    <input type="range" id="progress" min="0" max="1000" value="0" />
 
     <script src="sketch.js"></script>
     <script>
