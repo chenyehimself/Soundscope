@@ -16,21 +16,19 @@ function draw() {
  
    if (isAppStarted && (isMicStarted || isFilePlaying)) {
      let spectrum = fft.analyze();
-     
-     // 对数索引映射循环：使低频区域条更窄、分辨率更高，并应用开根号平滑
      const N = spectrum.length;
+ 
      noStroke();
      fill(0);
+ 
+     // 对数索引映射循环：使低频区域条更窄、分辨率更高
      for (let i = 0; i < N; i++) {
-       // 原始对数归一化索引
-       let normLog1 = log(i + 1) / log(N);
-       let normLog2 = log(i + 2) / log(N);
-       // 应用开根号以加宽低频区域
-       const skew1 = sqrt(normLog1);
-       const skew2 = sqrt(normLog2);
+       // 计算对数索引（0 到 1）
+       const idx1 = log(i + 1) / log(N);
+       const idx2 = log(i + 2) / log(N);
        // 映射到画布宽度
-       const x1 = map(skew1, 0, 1, 0, width);
-       const x2 = map(skew2, 0, 1, 0, width);
+       const x1 = map(idx1, 0, 1, 0, width);
+       const x2 = map(idx2, 0, 1, 0, width);
        const w = x2 - x1;
        // 高度按能量映射
        const h = -height + map(spectrum[i], 0, 255, height, 0);
