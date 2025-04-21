@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>SoundScope</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
     <link rel="stylesheet" href="style.css" />
@@ -65,6 +66,7 @@
       <p>Explore the invisible shape of sound.<br />Click below to begin.</p>
       <button onclick="startApp()">START</button>
     </div>
+    <input type="file" id="audio-upload" accept="audio/*" style="position:absolute; top:20px; left:20px; z-index:20;">
     <script src="sketch.js"></script>
     <script>
       function startApp() {
@@ -73,6 +75,15 @@
           startSketch();
         }
       }
+    </script>
+    <script>
+      let uploadedFile;
+      document.getElementById('audio-upload').addEventListener('change', function(e) {
+        uploadedFile = URL.createObjectURL(e.target.files[0]);
+        if (typeof handleUploadedAudio === 'function') {
+          handleUploadedAudio(uploadedFile);
+        }
+      });
     </script>
   </body>
 </html>
