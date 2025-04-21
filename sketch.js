@@ -58,6 +58,7 @@ function startSketch() {
   mic.start(
     () => {
       fft = new p5.FFT();
+      fft.smooth(0.8);
       fft.setInput(mic);
       isMicStarted = true;
       loop();
@@ -75,6 +76,7 @@ window.handleUploadedAudio = function (fileURL) {
   }
   uploadedSound = loadSound(fileURL, () => {
     fft = new p5.FFT();
+    fft.smooth(0.8);
     fft.setInput(uploadedSound);
     uploadedSound.play();
     isAppStarted = true;
