@@ -92,17 +92,19 @@ window.handleUploadedAudio = function(fileURL) {
 let isPaused = false;
 
 document.getElementById('pause-play').addEventListener('click', function () {
-  if (uploadedSound) {
-    if (uploadedSound.isPlaying()) {
-      uploadedSound.pause();
-      this.textContent = "▶️ Play";
-      isPaused = true;
-      noLoop();
-    } else {
+  if (isPaused) {
+    if (uploadedSound && !uploadedSound.isPlaying()) {
       uploadedSound.play();
-      this.textContent = "⏸️ Pause";
-      isPaused = false;
-      loop();
     }
+    this.textContent = "⏸️ Pause";
+    isPaused = false;
+    loop();
+  } else {
+    if (uploadedSound && uploadedSound.isPlaying()) {
+      uploadedSound.pause();
+    }
+    this.textContent = "▶️ Play";
+    isPaused = true;
+    noLoop();
   }
 });
