@@ -78,12 +78,46 @@
         cursor: pointer;
       }
       #progress {
+        -webkit-appearance: none;
         position: absolute;
         bottom: 20px;
         left: 50%;
         transform: translateX(-50%);
         width: 60%;
+        height: 4px;
+        background: #444;         /* dark gray track */
+        border-radius: 2px;
+        outline: none;
         z-index: 20;
+      }
+
+      #progress::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 12px;
+        height: 12px;
+        background: #fff;         /* white thumb */
+        border-radius: 50%;
+        margin-top: -4px;         /* center thumb on track */
+        cursor: pointer;
+        box-shadow: 0 0 2px rgba(0,0,0,0.5);
+      }
+
+      #progress::-moz-range-thumb {
+        width: 12px;
+        height: 12px;
+        background: #fff;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 0 2px rgba(0,0,0,0.5);
+      }
+
+      #progress::-ms-thumb {
+        width: 12px;
+        height: 12px;
+        background: #fff;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 0 2px rgba(0,0,0,0.5);
       }
     </style>
   </head>
