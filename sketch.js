@@ -12,44 +12,39 @@ function setup() {
 }
 
 function draw() {
-   background(255);
- 
-   if (isAppStarted && (isMicStarted || isFilePlaying)) {
-     let spectrum = fft.analyze();
-     const N = spectrum.length;
- 
-     noStroke();
-     fill(0);
- 
-     const exponent = 0.5;  // <1 to expand low-frequency resolution
- 
-     // 对数索引映射循环：使低频区域条更窄、分辨率更高
-     for (let i = 0; i < N; i++) {
-       // 计算对数索引（0 到 1）
-       const idx1 = log(i + 1) / log(N);
-       const idx2 = log(i + 2) / log(N);
-       // 映射到画布宽度
-       const x1 = map(idx1, 0, 1, 0, width);
-       const x2 = map(idx2, 0, 1, 0, width);
-       const w = x2 - x1;
-       // 高度按能量映射
-       const h = -height + map(spectrum[i], 0, 255, height, 0);
-       rect(x1, height, w, h);
-     }
- 
-     // 波形部分保持不变
-     let waveform = fft.waveform();
-     noFill();
-     stroke(0);
-     beginShape();
-     for (let i = 0; i < waveform.length; i++) {
-       let x = map(i, 0, waveform.length, 0, width);
-       let y = map(waveform[i], -1, 1, 0, height);
-       vertex(x, y);
-     }
-     endShape();
-   }
- }
+  background(255);
+
+  if (isAppStarted && (isMicStarted || isFilePlaying)) {
+    let spectrum = fft.analyze();
+
+    noStroke();
+    fill(0);
+    for (let i = 1; i < spectrum.length; i++) {
+      // 对数频率映射
+      let nyquist = 22050;
+      let minFreq = 20;
+      let maxFreq = nyquist;
+      let freq = map(i, 0, spectrum.length, minFreq, nyquist);
+      let prevFreq = map(i - 1, 0, spectrum.length, minFreq, nyquist);
+      let x = map(log(freq), log(minFreq), log(maxFreq), 0, width);
+      let x0 = map(log(prevFreq), log(minFreq), log(maxFreq), 0, width);
+      let w = x - x0;
+      let h = -height + map(spectrum[i], 0, 255, height, 0);
+      rect(x0, height, w, h);
+    }
+
+    let waveform = fft.waveform();
+    noFill();
+    stroke(0);
+    beginShape();
+    for (let i = 0; i < waveform.length; i++) {
+      let x = map(i, 0, waveform.length, 0, width);
+      let y = map(waveform[i], -1, 1, 0, height);
+      vertex(x, y);
+    }
+    endShape();
+  }
+}
 
 function startSketch() {
   isAppStarted = true;
@@ -58,7 +53,6 @@ function startSketch() {
     () => {
       fft = new p5.FFT();
       fft.setInput(mic);
-      // fft.smooth(0.8); // Smoothing function removed
       isMicStarted = true;
       loop();
     },
@@ -76,7 +70,6 @@ window.handleUploadedAudio = function (fileURL) {
   uploadedSound = loadSound(fileURL, () => {
     fft = new p5.FFT();
     fft.setInput(uploadedSound);
-    // fft.smooth(0.8); // Smoothing function removed
     uploadedSound.play();
     isAppStarted = true;
     isMicStarted = false;
