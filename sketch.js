@@ -21,7 +21,7 @@ function draw() {
      noStroke();
      fill(0);
  
-     const exponent = 2;  // >1 to compress low-frequency bandwidth
+     const exponent = 0.5;  // <1 to expand low-frequency resolution
  
      // 对数索引映射循环：使低频区域条更窄、分辨率更高
      for (let i = 0; i < N; i++) {
