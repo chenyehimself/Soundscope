@@ -25,9 +25,10 @@ function draw() {
        // 原始对数归一化索引
        let normLog1 = log(i + 1) / log(N);
        let normLog2 = log(i + 2) / log(N);
-       // 应用开根号以加宽低频区域
-       const skew1 = sqrt(normLog1);
-       const skew2 = sqrt(normLog2);
+       // 使用指数映射以增强低频分辨率
+       const exponent = 0.3;  // 调整此值 <1以获得更细的低频分辨率
+       const skew1 = pow(normLog1, exponent);
+       const skew2 = pow(normLog2, exponent);
        // 映射到画布宽度
        const x1 = map(skew1, 0, 1, 0, width);
        const x2 = map(skew2, 0, 1, 0, width);
