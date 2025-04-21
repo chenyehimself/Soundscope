@@ -25,7 +25,7 @@ function draw() {
      let minFreq = 20;
      let maxFreq = nyquist;
  
-     for (let i = 0; i < spectrumLength; i++) {
+     for (let i = 1; i < spectrumLength; i++) {
        // 计算当前频率（线性）
        let freq = map(i, 0, spectrumLength, 0, nyquist);
        
