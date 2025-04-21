@@ -19,9 +19,13 @@ function draw() {
     noStroke();
     fill(0);
     for (let i = 0; i < spectrum.length; i++) {
-      let x = map(i, 0, spectrum.length, 0, width);
+      let logIndex = log(i + 1) / log(spectrum.length); 
+      let x = map(logIndex, 0, 1, 0, width);
+      let nextLogIndex = log(i + 2) / log(spectrum.length);
+      let w = map(nextLogIndex, 0, 1, 0, width) - x;
+    
       let h = -height + map(spectrum[i], 0, 255, height, 0);
-      rect(x, height, width / spectrum.length, h);
+      rect(x, height, w, h);
     }
 
     let waveform = fft.waveform();
