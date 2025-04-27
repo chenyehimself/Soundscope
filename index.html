@@ -1,171 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>SoundScope</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
-    <link rel="stylesheet" href="style.css" />
-    <style>
-      body {
-        margin: 0;
-        font-family: sans-serif;
-        background-color: #fff;
-        color: #000;
-      }
-      /* Splash screen */
-      #splash {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: linear-gradient(to bottom, #fff, #eee);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        z-index: 10;
-        padding: 2rem;
-        box-sizing: border-box;
-      }
-      #splash h1 {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-        color: #000;
-        font-weight: bold;
-      }
-      #splash p {
-        font-size: 1.2rem;
-        line-height: 1.5;
-        max-width: 600px;
-        margin: 0 auto;
-        color: #333;
-      }
-      #splash button {
-        margin-top: 2rem;
-        padding: 1rem 2.5rem;
-        font-size: 1.2rem;
-        background-color: #000;
-        color: #fff;
-        border: none;
-        border-radius: 6px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-      #splash button:hover {
-        background-color: #333;
-      }
-      /* Controls panel */
-      #controls {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        z-index: 20;
-      }
-      #controls input,
-      #controls button {
-        display: block;
-        margin-bottom: 10px;
-      }
-      #pause-play {
-        background-color: #000;
-        color: #fff;
-        border: none;
-        padding: 6px 14px;
-        border-radius: 4px;
-        font-weight: bold;
-        cursor: pointer;
-      }
-      /* Apple‑style progress bar */
-      #progress {
-        -webkit-appearance: none;
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 60%;
-        height: 4px;
-        background: #444;         /* dark gray track */
-        border-radius: 2px;
-        outline: none;
-        z-index: 20;
-      }
-      #progress::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        width: 12px;
-        height: 12px;
-        background: #fff;         /* white thumb */
-        border-radius: 50%;
-        margin-top: -4px;         /* center thumb on track */
-        cursor: pointer;
-        box-shadow: 0 0 2px rgba(0,0,0,0.5);
-      }
-      #progress::-moz-range-thumb {
-        width: 12px;
-        height: 12px;
-        background: #fff;
-        border-radius: 50%;
-        cursor: pointer;
-        box-shadow: 0 0 2px rgba(0,0,0,0.5);
-      }
-      #progress::-ms-thumb {
-        width: 12px;
-        height: 12px;
-        background: #fff;
-        border-radius: 50%;
-        cursor: pointer;
-        box-shadow: 0 0 2px rgba(0,0,0,0.5);
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Splash screen -->
-    <div id="splash">
-      <h1>🎧 SoundScope</h1>
-      <p>Explore the invisible shape of sound.<br />Click below to begin.</p>
-      <button onclick="startApp()">START</button>
-    </div>
+<head>
+  <meta charset="UTF-8" />
+  <title>SoundScope</title>
+  <!-- p5.js 核心 & 音频库 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #fff;
+      color: #000;
+    }
+    /* Splash 屏 */
+    #splash {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: linear-gradient(to bottom, #fff, #eee);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      z-index: 10;
+      padding: 2rem;
+      box-sizing: border-box;
+    }
+    #splash h1 {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      color: #000;
+      font-weight: bold;
+    }
+    #splash p {
+      font-size: 1.2rem;
+      color: #333;
+      max-width: 600px;
+      line-height: 1.5;
+    }
+    #splash button {
+      margin-top: 2rem;
+      padding: 1rem 2.5rem;
+      font-size: 1.2rem;
+      background: #000;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color .3s;
+    }
+    #splash button:hover {
+      background: #333;
+    }
+    /* 控件面板 */
+    #controls {
+      position: absolute;
+      top: 20px; left: 20px;
+      z-index: 20;
+    }
+    #controls input,
+    #controls button {
+      display: block;
+      margin-bottom: 10px;
+    }
+    #pause-play {
+      background: #000;
+      color: #fff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <!-- Splash -->
+  <div id="splash">
+    <h1>🎧 SoundScope</h1>
+    <p>Explore the invisible shape of sound.<br/>Click below to begin.</p>
+    <button onclick="startApp()">START</button>
+  </div>
 
-    <!-- Controls: upload & pause/play -->
-    <div id="controls">
-      <input type="file" id="audio-upload" accept="audio/*" />
-      <button id="pause-play">⏸️ Pause</button>
-    </div>
+  <!-- 控件：上传 & 暂停/播放 -->
+  <div id="controls">
+    <input type="file" id="audio-upload" accept="audio/*" />
+    <button id="pause-play">⏸️ Pause</button>
+  </div>
 
-    <!-- Seek bar -->
-    <input type="range" id="progress" min="0" max="1000" value="0" />
-
-    <!-- Sketch & bindings -->
-    <script src="sketch.js"></script>
-    <script>
-      function startApp() {
-        document.getElementById('splash').style.display = 'none';
-        if (typeof startSketch === 'function') startSketch();
-      }
-
-      // File‑upload handler
-      document
-        .getElementById('audio-upload')
-        .addEventListener('change', function (e) {
-          const fileURL = URL.createObjectURL(e.target.files[0]);
-          if (typeof handleUploadedAudio === 'function') {
-            handleUploadedAudio(fileURL);
-          }
-        });
-
-      // Progress‑bar seek binding
-      const progressBar = document.getElementById('progress');
-      progressBar.addEventListener('input', function () {
-        if (!window.uploadedSound || !uploadedSound.isLoaded()) return;
-        const dur = uploadedSound.duration();
-        const newTime = (this.value / this.max) * dur;
-        const wasPlaying = uploadedSound.isPlaying();
-        uploadedSound.jump(newTime);
-        if (!wasPlaying) uploadedSound.pause();
-      });
-    </script>
-  </body>
+  <!-- 主脚本 -->
+  <script src="sketch.js"></script>
+  <script>
+    // 隐藏 Splash 并启动 sketch
+    function startApp() {
+      document.getElementById('splash').style.display = 'none';
+      if (typeof startSketch === 'function') startSketch();
+    }
+    // 处理文件上传
+    document.getElementById('audio-upload').addEventListener('change', e => {
+      const url = URL.createObjectURL(e.target.files[0]);
+      if (typeof handleUploadedAudio === 'function') handleUploadedAudio(url);
+    });
+    // 暂停/播放按钮已在 sketch.js 中绑定
+  </script>
+</body>
 </html>
