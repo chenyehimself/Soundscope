@@ -6,14 +6,35 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
   <style>
-    body { margin:0; background:#fff; font-family:sans-serif; }
-    #controls { position:absolute; top:20px; left:20px; z-index:10; }
-    #controls button, #controls input {
-      display:block; margin-bottom:10px;
+    body {
+      margin: 0;
+      background: #fff;
+      font-family: sans-serif;
+      padding-bottom: 100px; /* ensure slider isn’t cut off */
+    }
+    canvas {
+      display: block;
+      margin: 0 auto; /* center the p5 canvas */
+    }
+    #controls {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 10;
+    }
+    #controls button,
+    #controls input {
+      display: block;
+      margin-bottom: 10px;
     }
     #pause-play {
-      background:#000; color:#fff; border:none;
-      padding:6px 14px; border-radius:4px; cursor:pointer;
+      background: #000;
+      color: #fff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -23,10 +44,11 @@
     <input type="file" id="audio-upload" accept="audio/*" />
     <button id="pause-play">⏸️ Pause</button>
   </div>
+
   <script src="sketch.js"></script>
   <script>
-    // 上传后播放
-    document.getElementById('audio-upload').addEventListener('change', e=>{
+    // 当上传音频时调用
+    document.getElementById('audio-upload').addEventListener('change', e => {
       handleUploadedAudio(URL.createObjectURL(e.target.files[0]));
     });
   </script>
