@@ -23,16 +23,16 @@ function draw() {
     const maxFreq  = nyquist;
     const points   = 512;  // 采样点数，越高越平滑
 
-    // 填充下方区域，黑色 50% 透明度
-    fill(0);
+    // 填充下方区域，纯黑实心
     noStroke();
+    fill(0);
     beginShape();
     // 从左下角开始
     vertex(0, height);
     for (let j = 0; j < points; j++) {
       // 计算对数频率 f
       const f = exp(log(minFreq) + (j / (points - 1)) * log(maxFreq / minFreq));
-      // 对应 FFT bin
+      // 对应 FFT bin 下标
       const idx = constrain(floor(map(f, 0, nyquist, 0, spectrum.length)), 0, spectrum.length - 1);
       const amp = spectrum[idx];
       // 计算坐标
@@ -56,6 +56,7 @@ function draw() {
     }
     endShape();
 
+    // —— 更新进度条值（如果还在用 HTML 滑块） —— 
     if (uploadedSound && uploadedSound.isLoaded()) {
       const prog = document.getElementById('progress');
       const curr = uploadedSound.currentTime();
