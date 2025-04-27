@@ -6,49 +6,35 @@ let isFilePlaying = false;
 let isPaused = false;
 
 function setup() {
-  // 创建画布
+  // 创建画布并挂载到 body
   let cnv = createCanvas(800, 400);
   cnv.parent(document.body);
-
-  // 绑定进度条拖拽完成后的跳转逻辑
-  const progressBar = document.getElementById('progress');
-  progressBar.addEventListener('change', function() {
-    if (uploadedSound && uploadedSound.isLoaded()) {
-      const dur     = uploadedSound.duration();
-      const newTime = (this.value / this.max) * dur;
-      const wasPlaying = uploadedSound.isPlaying();
-      // 跳转
-      uploadedSound.jump(newTime);
-      // 如果之前是暂停状态，保持暂停
-      if (!wasPlaying) {
-        uploadedSound.pause();
-      }
-    }
-  });
-
-  noLoop(); // 初始不绘制，等待用户开始
+  noLoop();  // 等待 startApp() 调用 loop()
 }
 
 function draw() {
   background(255);
 
   if (isAppStarted && (isMicStarted || isFilePlaying)) {
-    // 1. 对数平滑频谱曲线
+    // 1. 对数刻度平滑频谱曲线
     const spectrum = fft.analyze();
     const nyquist  = 22050;
     const minFreq  = 20;
     const maxFreq  = nyquist;
-    const points   = 512;
+    const points   = 512;  // 采样点数，越高越平滑
 
     noFill();
-    stroke(0, 127);
+    stroke(0, 127);  // 半透明黑色曲线
     beginShape();
     for (let j = 0; j < points; j++) {
-      const f   = exp(log(minFreq) + (j / (points - 1)) * log(maxFreq / minFreq));
+      // 计算对数频率 f
+      const f = exp(log(minFreq) + (j / (points - 1)) * log(maxFreq / minFreq));
+      // 对应的 FFT bin 下标
       const idx = constrain(floor(map(f, 0, nyquist, 0, spectrum.length)), 0, spectrum.length - 1);
       const amp = spectrum[idx];
-      const x   = map(log(f), log(minFreq), log(maxFreq), 0, width);
-      const y   = map(amp, 0, 255, height, 0);
+      // X = 对数位置，Y = 振幅映射
+      const x = map(log(f), log(minFreq), log(maxFreq), 0, width);
+      const y = map(amp, 0, 255, height, 0);
       vertex(x, y);
     }
     endShape();
@@ -67,9 +53,9 @@ function draw() {
 
     // 3. 更新进度条值
     if (uploadedSound && uploadedSound.isLoaded()) {
-      const prog  = document.getElementById('progress');
-      const curr  = uploadedSound.currentTime();
-      const dur   = uploadedSound.duration();
+      const prog = document.getElementById('progress');
+      const curr = uploadedSound.currentTime();
+      const dur  = uploadedSound.duration();
       if (dur > 0) {
         prog.value = (curr / dur) * prog.max;
       }
@@ -95,22 +81,22 @@ function startSketch() {
 }
 
 window.handleUploadedAudio = function (fileURL) {
-  if (uploadedSound) {
-    uploadedSound.stop();
-  }
+  // 停止之前的音频
+  if (uploadedSound) uploadedSound.stop();
+  // 加载并播放上传的音频
   uploadedSound = loadSound(fileURL, () => {
     fft = new p5.FFT();
     fft.setInput(uploadedSound);
     uploadedSound.play();
-    isAppStarted  = true;
-    isMicStarted  = false;
-    isFilePlaying = true;
-    isPaused      = false;
+    isAppStarted    = true;
+    isMicStarted    = false;
+    isFilePlaying   = true;
+    isPaused        = false;
     loop();
   });
 };
 
-// 暂停/播放按钮逻辑
+// 暂停/播放切换按钮逻辑
 document.getElementById('pause-play').addEventListener('click', function () {
   if (!uploadedSound || !uploadedSound.isLoaded()) return;
   if (!isPaused) {
