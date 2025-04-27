@@ -24,8 +24,8 @@ function draw() {
     const points   = 512;  // 采样点数，越高越平滑
 
     // 填充下方区域，黑色 50% 透明度
-    fill(0);
     noStroke();
+    FileList(0,127);
     beginShape();
     // 从左下角开始
     vertex(0, height);
