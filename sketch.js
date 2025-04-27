@@ -6,40 +6,45 @@ let isFilePlaying = false;
 let isPaused = false;
 
 function setup() {
-  // 创建画布并挂载到 body
+  // 创建 800×400 画布并挂载到 body
   let cnv = createCanvas(800, 400);
   cnv.parent(document.body);
-  noLoop();  // 等待 startApp() 调用 loop()
+  noLoop();  // 初始不自动循环
 }
 
 function draw() {
   background(255);
 
   if (isAppStarted && (isMicStarted || isFilePlaying)) {
-    // 1. 对数刻度平滑频谱曲线
+    // —— 对数刻度频谱面积图 —— 
     const spectrum = fft.analyze();
     const nyquist  = 22050;
     const minFreq  = 20;
     const maxFreq  = nyquist;
     const points   = 512;  // 采样点数，越高越平滑
 
-    noFill();
-    stroke(0, 127);  // 半透明黑色曲线
+    // 填充下方区域，黑色 50% 透明度
+    fill(0, 127);
+    noStroke();
     beginShape();
+    // 从左下角开始
+    vertex(0, height);
     for (let j = 0; j < points; j++) {
       // 计算对数频率 f
       const f = exp(log(minFreq) + (j / (points - 1)) * log(maxFreq / minFreq));
-      // 对应的 FFT bin 下标
+      // 对应 FFT bin
       const idx = constrain(floor(map(f, 0, nyquist, 0, spectrum.length)), 0, spectrum.length - 1);
       const amp = spectrum[idx];
-      // X = 对数位置，Y = 振幅映射
+      // 计算坐标
       const x = map(log(f), log(minFreq), log(maxFreq), 0, width);
       const y = map(amp, 0, 255, height, 0);
       vertex(x, y);
     }
-    endShape();
+    // 到右下角闭合
+    vertex(width, height);
+    endShape(CLOSE);
 
-    // 2. 波形叠加
+    // —— 波形叠加 —— 
     let waveform = fft.waveform();
     noFill();
     stroke(0);
@@ -51,7 +56,7 @@ function draw() {
     }
     endShape();
 
-    // 3. 更新进度条值
+    // —— 更新进度条值（如果你还在用 HTML range） —— 
     if (uploadedSound && uploadedSound.isLoaded()) {
       const prog = document.getElementById('progress');
       const curr = uploadedSound.currentTime();
@@ -73,7 +78,7 @@ function startSketch() {
       isMicStarted = true;
       loop();
     },
-    (err) => {
+    err => {
       console.error('Mic failed to start:', err);
       alert('Please allow microphone access.');
     }
@@ -81,22 +86,20 @@ function startSketch() {
 }
 
 window.handleUploadedAudio = function (fileURL) {
-  // 停止之前的音频
   if (uploadedSound) uploadedSound.stop();
-  // 加载并播放上传的音频
   uploadedSound = loadSound(fileURL, () => {
     fft = new p5.FFT();
     fft.setInput(uploadedSound);
     uploadedSound.play();
-    isAppStarted    = true;
-    isMicStarted    = false;
-    isFilePlaying   = true;
-    isPaused        = false;
+    isAppStarted  = true;
+    isMicStarted  = false;
+    isFilePlaying = true;
+    isPaused      = false;
     loop();
   });
 };
 
-// 暂停/播放切换按钮逻辑
+// 暂停/播放按钮逻辑
 document.getElementById('pause-play').addEventListener('click', function () {
   if (!uploadedSound || !uploadedSound.isLoaded()) return;
   if (!isPaused) {
