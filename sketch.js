@@ -6,32 +6,32 @@ let isPaused      = false;
 let progressSlider;
 
 function setup() {
-  // 1. 画布宽度 = min(800px, 窗口宽度 * 0.8)，高度 = 400px
-  const canvasWidth  = min(windowWidth * 0.8, 800);
-  const canvasHeight = 400;
-  const cnv = createCanvas(canvasWidth, canvasHeight);
-  // 2. 挂载到 body 并水平居中
+  // 画布：窗口宽度80%，不超过800，高度400
+  const cw = min(windowWidth * 0.8, 800);
+  const ch = 400;
+  const cnv = createCanvas(cw, ch);
   cnv.parent(document.body);
-  cnv.position((windowWidth - canvasWidth) / 2, 0);
+  cnv.position((windowWidth - cw)/2, 0);
 
-  // FFT 初始化
+  // FFT 初始化并开启平滑
   fft = new p5.FFT();
+  fft.smooth(0.8);
 
-  // 3. 创建与画布等宽的滑块，并水平居中
-  progressSlider = createSlider(0, 1, 0, 0.001);
-  progressSlider.position((windowWidth - canvasWidth) / 2, canvasHeight + 20);
-  progressSlider.style('width', canvasWidth + 'px');
-  progressSlider.input(() => {
+  // 滑块
+  progressSlider = createSlider(0,1,0,0.001);
+  progressSlider.position((windowWidth - cw)/2, ch + 20);
+  progressSlider.style('width', cw+'px');
+  progressSlider.input(()=>{
     if (uploadedSound && uploadedSound.isLoaded()) {
       const t = progressSlider.value() * uploadedSound.duration();
-      const wasPlaying = uploadedSound.isPlaying();
+      const wp = uploadedSound.isPlaying();
       uploadedSound.jump(t);
-      if (!wasPlaying) uploadedSound.pause();
+      if (!wp) uploadedSound.pause();
     }
   });
 
-  // 4. 暂停/播放按钮绑定
-  select('#pause-play').mousePressed(() => {
+  // 暂停/播放按钮
+  select('#pause-play').mousePressed(()=>{
     if (!uploadedSound || !uploadedSound.isLoaded()) return;
     if (!isPaused) {
       uploadedSound.pause();
@@ -43,30 +43,24 @@ function setup() {
       select('#pause-play').html('⏸️ Pause');
     }
   });
-
-  noLoop();  // 初始不自动绘制
 }
 
 function draw() {
   background(255);
 
-  // 没有启动或没有音源时不绘制
-  if (!(useMic || (uploadedSound && uploadedSound.isLoaded()))) {
-    return;
-  }
-
-  // 切换 FFT 输入
+  // 选数据源
   if (useMic && mic && mic.enabled) {
     fft.setInput(mic);
-  } else {
+  } else if (uploadedSound && uploadedSound.isLoaded()) {
     fft.setInput(uploadedSound);
+  } else {
+    // 没有音源就不画
+    return;
   }
 
   // —— 对数频谱面积图 —— 
   const spectrum = fft.analyze();
-  const minF     = 20;
-  const maxF     = 22050;
-  const pts      = 512;
+  const minF     = 20, maxF = 22050, pts = 512;
   const midY     = height / 2;
 
   noStroke();
@@ -74,8 +68,8 @@ function draw() {
   beginShape();
   vertex(0, midY);
   for (let j = 0; j < pts; j++) {
-    const f   = exp(log(minF) + (j/(pts-1))*log(maxF/minF));
-    const idx = constrain(floor(map(f, 0, maxF, 0, spectrum.length)), 0, spectrum.length - 1);
+    const f   = exp(log(minF) + j/(pts-1)*log(maxF/minF));
+    const idx = constrain(floor(map(f, 0, maxF, 0, spectrum.length)), 0, spectrum.length-1);
     const amp = spectrum[idx];
     const x   = map(log(f), log(minF), log(maxF), 0, width);
     const y   = midY - map(amp, 0, 255, 0, midY);
@@ -85,7 +79,7 @@ function draw() {
   endShape(CLOSE);
 
   // —— 波形叠加 —— 
-  let wave = fft.waveform();
+  const wave = fft.waveform();
   noFill();
   stroke(0);
   beginShape();
@@ -106,26 +100,20 @@ function startMic() {
   useMic = true;
   if (!mic) {
     mic = new p5.AudioIn();
-    mic.start(() => {
+    mic.start(()=>{
       fft.setInput(mic);
-      loop();
-    }, () => {
-      alert('请允许麦克风访问');
-    });
-  } else {
-    loop();
+    }, ()=>alert('请允许麦克风访问'));
   }
 }
 
 window.handleUploadedAudio = function(url) {
   useMic = false;
   if (uploadedSound) uploadedSound.stop();
-  uploadedSound = loadSound(url, () => {
+  uploadedSound = loadSound(url, ()=>{
     fft.setInput(uploadedSound);
     uploadedSound.play();
     isFilePlaying = true;
     isPaused      = false;
     select('#pause-play').html('⏸️ Pause');
-    loop();
   });
 };
