@@ -24,7 +24,7 @@ function draw() {
     const points   = 512;  // 采样点数，越高越平滑
 
     // 填充下方区域，黑色 50% 透明度
-    fill(0, 127);
+    fill(0);
     noStroke();
     beginShape();
     // 从左下角开始
@@ -56,7 +56,6 @@ function draw() {
     }
     endShape();
 
-    // —— 更新进度条值（如果你还在用 HTML range） —— 
     if (uploadedSound && uploadedSound.isLoaded()) {
       const prog = document.getElementById('progress');
       const curr = uploadedSound.currentTime();
