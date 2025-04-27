@@ -25,7 +25,7 @@ function draw() {
 
     // 填充下方区域，黑色 50% 透明度
     noStroke();
-    FileList(0);
+    fill(0);
     beginShape();
     // 从左下角开始
     vertex(0, height);
