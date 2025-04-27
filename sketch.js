@@ -7,25 +7,22 @@ let isPaused      = false;
 let progressSlider;
 
 function setup() {
-  // 创建画布
-  createCanvas(800, 400).parent(document.body);
-  noLoop();
-
-  // 在画布下方创建 p5 滑块，用于拖拽 seek（0–1，步长0.001）
-  progressSlider = createSlider(0, 1, 0, 0.001);
-  progressSlider.position(width * 0.2, height + 20);
-  progressSlider.style('width', width * 0.6 + 'px');
-
-  // 绑定滑块拖拽事件，拖动时跳转播放
-  progressSlider.input(() => {
-    if (uploadedSound && uploadedSound.isLoaded()) {
-      const dur = uploadedSound.duration();
-      const t   = progressSlider.value() * dur;
-      const wasPlaying = uploadedSound.isPlaying();
-      uploadedSound.jump(t);
-      if (!wasPlaying) uploadedSound.pause();
-    }
-  });
+   // 1) 改成动态宽度的画布：占窗口宽度的 90%，高度 400px
+   const canvasWidth  = windowWidth * 0.9;
+   const canvasHeight = 400;
+   const cnv = createCanvas(canvasWidth, canvasHeight);
+   // 2) 将画布水平居中
+   cnv.position((windowWidth - canvasWidth) / 2, 0);
+   noLoop();
+ 
+   // 3) 创建进度滑块，用画布一样的宽度
+   progressSlider = createSlider(0, 1, 0, 0.001);
+   // 水平方向也居中，宽度 = 画布宽度
+   progressSlider.position((windowWidth - canvasWidth) / 2, canvasHeight + 20);
+   progressSlider.style('width', canvasWidth + 'px');
+ 
+   // …其余绑定逻辑保持不变…
+ }
 
   // 绑定暂停/播放按钮
   document.getElementById('pause-play').addEventListener('click', function() {
