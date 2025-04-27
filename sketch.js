@@ -15,30 +15,28 @@ function draw() {
   background(255);
 
   if (isAppStarted && (isMicStarted || isFilePlaying)) {
-    // Grouped log-spaced spectrum bars
-    const spectrum = fft.analyze();
-    const nyquist = 22050;
-    const minFreq = 20;
-    const maxFreq = nyquist;
-    const barCount = 64;
-
-    noStroke();
-    fill(0);
-    for (let j = 0; j < barCount; j++) {
-      const f1 = exp(log(minFreq) + (j / barCount) * log(maxFreq / minFreq));
-      const f2 = exp(log(minFreq) + ((j + 1) / barCount) * log(maxFreq / minFreq));
-      const i1 = constrain(floor(map(f1, 0, nyquist, 0, spectrum.length)), 0, spectrum.length - 1);
-      const i2 = constrain(floor(map(f2, 0, nyquist, 0, spectrum.length)), 0, spectrum.length - 1);
-
-      let sum = 0;
-      for (let k = i1; k <= i2; k++) sum += spectrum[k];
-      const avg = sum / max(1, i2 - i1 + 1);
-
-      const x = (j / barCount) * width;
-      const w = width / barCount;
-      const h = -height + map(avg, 0, 255, height, 0);
-      rect(x, height, w, h);
-    }
+       // Continuous log-spaced frequency curve using vertex
+       const spectrum = fft.analyze();
+       const nyquist  = 22050;
+       const minFreq  = 20;
+       const maxFreq  = nyquist;
+       const points   = 256;  // 调整点数以控制平滑度
+   
+       noFill();
+       stroke(0);
+       beginShape();
+       for (let j = 0; j < points; j++) {
+         // 将 j 映射到对数频率 f
+         const f = exp(log(minFreq) + (j / (points - 1)) * log(maxFreq / minFreq));
+         // 找到对应的 FFT bin
+         const idx = constrain(floor(map(f, 0, nyquist, 0, spectrum.length)), 0, spectrum.length - 1);
+         const amp = spectrum[idx];
+         // 计算绘制坐标
+         const x = map(log(f), log(minFreq), log(maxFreq), 0, width);
+         const y = map(amp, 0, 255, height, 0);
+         vertex(x, y);
+       }
+       endShape();
 
     // Waveform overlay
     let waveform = fft.waveform();
