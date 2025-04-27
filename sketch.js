@@ -46,55 +46,60 @@ function setup() {
 }
 
 function draw() {
-  background(255);
-
-  // 选数据源
-  if (useMic && mic && mic.enabled) {
-    fft.setInput(mic);
-  } else if (uploadedSound && uploadedSound.isLoaded()) {
-    fft.setInput(uploadedSound);
-  } else {
-    // 没有音源就不画
-    return;
-  }
-
-  // —— 对数频谱面积图 —— 
-  const spectrum = fft.analyze();
-  const minF     = 20, maxF = 22050, pts = 512;
-  const midY     = height / 2;
-
-  noStroke();
-  fill(0);
-  beginShape();
-  vertex(0, midY);
-  for (let j = 0; j < pts; j++) {
-    const f   = exp(log(minF) + j/(pts-1)*log(maxF/minF));
-    const idx = constrain(floor(map(f, 0, maxF, 0, spectrum.length)), 0, spectrum.length-1);
-    const amp = spectrum[idx];
-    const x   = map(log(f), log(minF), log(maxF), 0, width);
-    const y   = midY - map(amp, 0, 255, 0, midY);
-    vertex(x, y);
-  }
-  vertex(width, midY);
-  endShape(CLOSE);
-
-  // —— 波形叠加 —— 
-  const wave = fft.waveform();
-  noFill();
-  stroke(0);
-  beginShape();
-  for (let i = 0; i < wave.length; i++) {
-    const x = map(i, 0, wave.length, 0, width);
-    const y = map(wave[i], -1, 1, 0, height);
-    vertex(x, y);
-  }
-  endShape();
-
-  // —— 同步滑块 —— 
-  if (uploadedSound && uploadedSound.isLoaded()) {
-    progressSlider.value(uploadedSound.currentTime() / uploadedSound.duration());
-  }
-}
+   background(255);
+ 
+   // 如果还没启动就跳过
+   if (!(isAppStarted && (isMicStarted || isFilePlaying))) return;
+ 
+   // 选择输入源
+   if (useMic && mic && mic.enabled) {
+     fft.setInput(mic);
+   } else if (uploadedSound && uploadedSound.isLoaded()) {
+     fft.setInput(uploadedSound);
+   }
+ 
+   const spectrum = fft.analyze();
+   const waveform = fft.waveform();
+ 
+   //—— 上半区：对数频谱面积图 ——//
+   const minF = 20;
+   const maxF = 22050;
+   const bins = 256;
+   const halfH = height / 2;
+ 
+   noStroke();
+   fill(0);
+   beginShape();
+   vertex(0, 0);             // 左上角闭合起点
+   for (let j = 0; j < bins; j++) {
+     const f   = exp(log(minF) + (j/(bins-1)) * log(maxF/minF));
+     const idx = constrain(floor(map(f, 0, maxF, 0, spectrum.length)), 0, spectrum.length-1);
+     const amp = spectrum[idx];
+     const x   = map(log(f), log(minF), log(maxF), 0, width);
+     // Y 映射到上半区：amp=0→halfH，amp=255→0
+     const y   = map(amp, 0, 255, halfH, 0);
+     vertex(x, y);
+   }
+   vertex(width, 0);         // 右上角闭合
+   endShape(CLOSE);
+ 
+   //—— 下半区：波形 ——//
+   stroke(0);
+   noFill();
+   beginShape();
+   for (let i = 0; i < waveform.length; i++) {
+     const x = map(i, 0, waveform.length, 0, width);
+     // 波形映射到下半区：wave=-1→height，wave=+1→halfH
+     const y = map(waveform[i], -1, 1, height, halfH);
+     vertex(x, y);
+   }
+   endShape();
+ 
+   //—— 同步滑块 ——//
+   if (uploadedSound && uploadedSound.isLoaded()) {
+     progressSlider.value(uploadedSound.currentTime() / uploadedSound.duration());
+   }
+ }
 
 function startMic() {
   useMic = true;
