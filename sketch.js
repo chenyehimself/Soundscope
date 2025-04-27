@@ -20,7 +20,7 @@ function draw() {
        const nyquist  = 22050;
        const minFreq  = 20;
        const maxFreq  = nyquist;
-       const points   = 256;  // 调整点数以控制平滑度
+       const points   = 512;  // 调整点数以控制平滑度
    
        noFill();
        stroke(0);
