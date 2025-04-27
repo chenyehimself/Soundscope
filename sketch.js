@@ -23,7 +23,7 @@ function draw() {
        const points   = 512;  // 调整点数以控制平滑度
    
        noFill();
-       stroke(0);
+       stroke(0,127);
        beginShape();
        for (let j = 0; j < points; j++) {
          // 将 j 映射到对数频率 f
