@@ -7,84 +7,42 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
   <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      background: #fff;
-      color: #000;
-    }
-    /* Splash 屏 */
+    body { margin:0; font-family:sans-serif; background:#fff; color:#000; }
     #splash {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: linear-gradient(to bottom, #fff, #eee);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      z-index: 10;
-      padding: 2rem;
-      box-sizing: border-box;
+      position:absolute; top:0; left:0; width:100vw; height:100vh;
+      background:linear-gradient(to bottom,#fff,#eee);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      text-align:center; z-index:10; padding:2rem; box-sizing:border-box;
     }
-    #splash h1 {
-      font-size: 4rem;
-      margin-bottom: 1rem;
-      color: #000;
-      font-weight: bold;
-    }
-    #splash p {
-      font-size: 1.2rem;
-      color: #333;
-      max-width: 600px;
-      line-height: 1.5;
-    }
+    #splash h1 { font-size:4rem; margin-bottom:1rem; color:#000; }
+    #splash p  { font-size:1.2rem; color:#333; max-width:600px; line-height:1.5; }
     #splash button {
-      margin-top: 2rem;
-      padding: 1rem 2.5rem;
-      font-size: 1.2rem;
-      background: #000;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background-color .3s;
+      margin-top:2rem; padding:1rem 2.5rem; font-size:1.2rem;
+      background:#000; color:#fff; border:none; border-radius:6px; cursor:pointer;
+      transition:background-color .3s;
     }
-    #splash button:hover {
-      background: #333;
-    }
-    /* 控件面板 */
+    #splash button:hover { background:#333; }
     #controls {
-      position: absolute;
-      top: 20px; left: 20px;
-      z-index: 20;
+      position:absolute; top:20px; left:20px; z-index:20;
     }
-    #controls input,
-    #controls button {
-      display: block;
-      margin-bottom: 10px;
+    #controls input, #controls button {
+      display:block; margin-bottom:10px;
     }
     #pause-play {
-      background: #000;
-      color: #fff;
-      border: none;
-      padding: 6px 14px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
+      background:#000; color:#fff; border:none; padding:6px 14px;
+      border-radius:4px; font-weight:bold; cursor:pointer;
     }
   </style>
 </head>
 <body>
-  <!-- Splash -->
+  <!-- 欢迎页 -->
   <div id="splash">
     <h1>🎧 SoundScope</h1>
     <p>Explore the invisible shape of sound.<br/>Click below to begin.</p>
     <button onclick="startApp()">START</button>
   </div>
 
-  <!-- 控件：上传 & 暂停/播放 -->
+  <!-- 控件区：上传 & 暂停/播放 -->
   <div id="controls">
     <input type="file" id="audio-upload" accept="audio/*" />
     <button id="pause-play">⏸️ Pause</button>
@@ -93,12 +51,13 @@
   <!-- 主脚本 -->
   <script src="sketch.js"></script>
   <script>
-    // 隐藏 Splash 并启动 sketch
+    // 隐藏 Splash 并启动 p5 sketch
     function startApp() {
       document.getElementById('splash').style.display = 'none';
       if (typeof startSketch === 'function') startSketch();
     }
-    // 处理文件上传
+
+    // 上传音频文件处理
     document.getElementById('audio-upload').addEventListener('change', e => {
       const url = URL.createObjectURL(e.target.files[0]);
       if (typeof handleUploadedAudio === 'function') handleUploadedAudio(url);
