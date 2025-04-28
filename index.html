@@ -10,11 +10,11 @@
       margin: 0;
       background: #fff;
       font-family: sans-serif;
-      padding-bottom: 100px; /* ensure slider isn’t cut off */
+      padding-bottom: 120px; /* 确保滑块不会被遮挡 */
     }
     canvas {
       display: block;
-      margin: 0 auto; /* center the p5 canvas */
+      margin: 20px auto; /* 画布上下各留 20px，水平居中 */
     }
     #controls {
       position: absolute;
@@ -47,7 +47,7 @@
 
   <script src="sketch.js"></script>
   <script>
-    // 当上传音频时调用
+    // 上传后自动播放
     document.getElementById('audio-upload').addEventListener('change', e => {
       handleUploadedAudio(URL.createObjectURL(e.target.files[0]));
     });
