@@ -8,14 +8,22 @@ function setup() {
   createCanvas(windowWidth, windowHeight).position(0, 0).style('z-index', '-1');
   fft = new p5.FFT();
 
-  // 滑块：0–1，步长0.001
+  // 创建滑块
   progressSlider = createSlider(0, 1, 0, 0.001)
     .position(width * 0.2, height - 30)
     .style('width', width * 0.6 + 'px')
     .style('z-index', '5'); // 滑块在画布上面
-  progressSlider.hide(); // 一开始隐藏滑块
+  progressSlider.hide(); // 一开始隐藏
 
-  // 暂停/播放
+  // 进度条可以自由拖动，不管是播放还是暂停
+  progressSlider.input(() => {
+    if (uploadedSound && uploadedSound.isLoaded()) {
+      let t = progressSlider.value() * uploadedSound.duration();
+      uploadedSound.jump(t);
+    }
+  });
+
+  // 暂停/播放按钮
   select('#pause-play').mousePressed(() => {
     if (!uploadedSound) return;
     if (!isFilePlaying) return;
