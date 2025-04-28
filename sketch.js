@@ -11,16 +11,9 @@ function setup() {
   // 滑块：0–1，步长0.001
   progressSlider = createSlider(0, 1, 0, 0.001)
     .position(width * 0.2, height - 30)
-    .style('width', width * 0.6 + 'px');
-
-  // 拖拽时跳转
-  progressSlider.input(() => {
-    if (uploadedSound && uploadedSound.isLoaded()) {
-      let t = progressSlider.value() * uploadedSound.duration();
-      uploadedSound.jump(t);
-      if (isPaused) uploadedSound.pause();
-    }
-  });
+    .style('width', width * 0.6 + 'px')
+    .style('z-index', '5'); // 滑块在画布上面
+  progressSlider.hide(); // 一开始隐藏滑块
 
   // 暂停/播放
   select('#pause-play').mousePressed(() => {
@@ -80,6 +73,7 @@ function draw() {
   endShape();
 
   // —— 同步滑块 —— 
+  progressSlider.show();
   progressSlider.value(uploadedSound.currentTime() / uploadedSound.duration());
 }
 
