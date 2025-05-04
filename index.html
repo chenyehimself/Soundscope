@@ -9,19 +9,16 @@
     body {
       margin: 0;
       background: #fff;
-      font-family: 'Helvetica Neue', sans-serif;
+      font-family: sans-serif;
+      padding-bottom: 140px; /* 确保滑块不被遮挡 */
+    }
+    canvas {
+      display: block;
+      margin: 20px auto;
     }
     #welcome {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      background: #fff;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 20;
+      text-align: center;
+      padding-top: 100px;
     }
     #welcome h1 {
       font-size: 48px;
@@ -32,53 +29,85 @@
       color: #666;
       margin-bottom: 30px;
     }
+    #welcome input {
+      font-size: 16px;
+      margin: 5px;
+      cursor: pointer;
+    }
     #controls {
       position: absolute;
       top: 20px;
       left: 20px;
       z-index: 10;
-      display: none; /* 控制器默认隐藏 */
+      display: none;
     }
     #controls button,
-    #controls input[type="file"] {
+    #controls input[type="range"],
+    #controls label {
       display: block;
       margin-bottom: 10px;
-      font-size: 16px;
+      font-size: 14px;
     }
-    #pause-play {
+    #upload-new,
+    #pause-play,
+    #reverb-toggle {
       background: #000;
       color: #fff;
       border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
+      padding: 6px 14px;
+      border-radius: 4px;
       cursor: pointer;
+      font-weight: bold;
       transition: background 0.3s;
     }
-    #pause-play:hover {
+    #upload-new:hover,
+    #pause-play:hover,
+    #reverb-toggle:hover {
       background: #333;
     }
-    #audio-upload {
-      font-size: 14px;
+    /* 隐藏真正的文件输入，用于 Upload New File 按钮 */
+    #file-input {
+      display: none;
     }
   </style>
 </head>
 <body>
+  <!-- 欢迎页 -->
   <div id="welcome">
-    <h1>🎵 SoundScope</h1>
-    <p>Upload your audio to begin</p>
+    <h1>🎧 SoundScope</h1>
+    <p>Upload your audio to begin.</p>
     <input type="file" id="audio-upload" accept="audio/*" />
   </div>
 
+  <!-- 控件区：上传后显示 -->
   <div id="controls">
+    <button id="upload-new">Upload New File</button>
+    <input type="file" id="file-input" accept="audio/*" />
     <button id="pause-play">⏸️ Pause</button>
+    <button id="reverb-toggle">Enable Reverb</button>
+    <label for="reverb-time">Reverb Time (s)</label>
+    <input type="range" id="reverb-time" min="0" max="10" step="0.1" value="5" />
+    <label for="decay-rate">Decay Rate</label>
+    <input type="range" id="decay-rate" min="0" max="10" step="0.1" value="4" />
+    <label for="drywet">Dry / Wet Mix</label>
+    <input type="range" id="drywet" min="0" max="1" step="0.01" value="0.7" />
   </div>
 
   <script src="sketch.js"></script>
   <script>
+    // 初次上传
     document.getElementById('audio-upload').addEventListener('change', e => {
       handleUploadedAudio(URL.createObjectURL(e.target.files[0]));
       document.getElementById('welcome').style.display = 'none';
       document.getElementById('controls').style.display = 'block';
+    });
+    // “Upload New File” 按钮打开隐藏输入
+    const fileInput = document.getElementById('file-input');
+    document.getElementById('upload-new').addEventListener('click', () => {
+      fileInput.click();
+    });
+    fileInput.addEventListener('change', e => {
+      handleUploadedAudio(URL.createObjectURL(e.target.files[0]));
     });
   </script>
 </body>
