@@ -3,19 +3,19 @@ let uploadedSound = null;
 let isFilePlaying = false;
 let isPaused = false;
 let progressSlider;
+let lastSpectrum = [];
+let lastWave = [];
 
 function setup() {
   createCanvas(windowWidth, windowHeight).position(0, 0).style('z-index', '-1');
   fft = new p5.FFT();
 
-  // 创建滑块
   progressSlider = createSlider(0, 1, 0, 0.001)
     .position(width * 0.2, height - 30)
     .style('width', width * 0.6 + 'px')
-    .style('z-index', '5'); // 滑块在画布上面
-  progressSlider.hide(); // 一开始隐藏
+    .style('z-index', '5'); 
+  progressSlider.hide(); 
 
-  // 进度条可以自由拖动，不管是播放还是暂停
   progressSlider.input(() => {
     if (uploadedSound && uploadedSound.isLoaded()) {
       let t = progressSlider.value() * uploadedSound.duration();
@@ -23,7 +23,6 @@ function setup() {
     }
   });
 
-  // 暂停/播放按钮
   select('#pause-play').mousePressed(() => {
     if (!uploadedSound) return;
     if (!isFilePlaying) return;
@@ -45,14 +44,18 @@ function draw() {
   if (uploadedSound && uploadedSound.isLoaded()) {
     fft.setInput(uploadedSound);
   } else {
-    return; // 无输入，跳过绘制
+    return; 
   }
 
-  let spectrum = fft.analyze();
-  let wave = fft.waveform();
+  if (!isPaused) {
+    lastSpectrum = fft.analyze();
+    lastWave = fft.waveform();
+  }
+  let spectrum = lastSpectrum;
+  let wave = lastWave;
   let minF = 20, maxF = 22050, pts = 256;
 
-  // —— 频谱 —— 
+
   noFill();
   stroke(0);
   strokeWeight(2);
@@ -68,7 +71,6 @@ function draw() {
   }
   endShape();
 
-  // —— 波形 —— 
   noFill();
   stroke(100);
   strokeWeight(1);
@@ -80,7 +82,6 @@ function draw() {
   }
   endShape();
 
-  // —— 同步滑块 —— 
   progressSlider.show();
   progressSlider.value(uploadedSound.currentTime() / uploadedSound.duration());
 }
