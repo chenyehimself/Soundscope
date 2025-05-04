@@ -36,6 +36,41 @@ function setup() {
       select('#pause-play').html('⏸️ Pause');
     }
   });
+
+  // —— Reverb effect setup ——
+  // create reverb node
+  const reverb = new p5.Reverb();
+  // get DOM controls
+  const revToggle = select('#reverb-toggle');
+  const revTime   = select('#reverb-time');
+  const decayRate = select('#decay-rate');
+  let reverbOn = false;
+
+  // Toggle reverb on/off
+  revToggle.mousePressed(() => {
+    if (!uploadedSound) return;
+    reverbOn = !reverbOn;
+    if (reverbOn) {
+      // apply reverb to sound
+      reverb.process(uploadedSound, revTime.value(), decayRate.value());
+      revToggle.html('Disable Reverb');
+    } else {
+      // disconnect reverb
+      reverb.disconnect();
+      uploadedSound.disconnect();
+      // reconnect sound directly to output
+      uploadedSound.connect();
+      revToggle.html('Enable Reverb');
+    }
+  });
+
+  // adjust reverb parameters dynamically
+  revTime.input(() => {
+    if (reverbOn) reverb.set(revTime.value(), decayRate.value());
+  });
+  decayRate.input(() => {
+    if (reverbOn) reverb.set(revTime.value(), decayRate.value());
+  });
 }
 
 function draw() {
