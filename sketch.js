@@ -3,24 +3,22 @@ let uploadedSound = null;
 let isFilePlaying = false;
 let isPaused      = false;
 let progressSlider;
-let reverb, hp;
+let reverb, hp, lofiFilter;
 let drywetSlider;
 
 function setup() {
-  // 全屏画布
   createCanvas(windowWidth, windowHeight)
     .position(0, 0)
-    .style('z-index', '-1');
+    .style('z-index','-1');
 
-  // FFT && 平滑
   fft = new p5.FFT();
   fft.smooth(0.8);
 
-  // 进度滑块
-  progressSlider = createSlider(0, 1, 0, 0.001)
-    .position(width * 0.2, height - 30)
-    .style('width', width * 0.6 + 'px')
-    .style('z-index', '5');
+  // 进度条
+  progressSlider = createSlider(0,1,0,0.001)
+    .position(width*0.2, height-60)
+    .style('width', width*0.6+'px')
+    .style('z-index','5');
   progressSlider.hide();
   progressSlider.input(() => {
     if (uploadedSound && uploadedSound.isLoaded()) {
@@ -29,56 +27,94 @@ function setup() {
     }
   });
 
-  // 暂停/播放
+  // Pause/Play
   select('#pause-play').mousePressed(() => {
     if (!uploadedSound || !isFilePlaying) return;
     if (!isPaused) {
-      uploadedSound.pause();
-      isPaused = true;
-      select('#pause-play').html('▶️ Play');
-      noLoop();
+      uploadedSound.pause(); isPaused=true;
+      select('#pause-play').html('▶️ Play'); noLoop();
     } else {
-      uploadedSound.play();
-      isPaused = false;
-      select('#pause-play').html('⏸️ Pause');
-      loop();
+      uploadedSound.play(); isPaused=false;
+      select('#pause-play').html('⏸️ Pause'); loop();
     }
   });
 
-  // 创建 Reverb + HighPass
-  reverb = new p5.Reverb();
-  hp     = new p5.HighPass();
+  // 效果器
+  reverb     = new p5.Reverb();
+  hp         = new p5.HighPass();
+  lofiFilter = new p5.LowPass();
 
-  // GUI 元素
-  const revToggle = select('#reverb-toggle');
-  const revTime   = select('#reverb-time');
-  const decayRate = select('#decay-rate');
-  drywetSlider    = select('#drywet');
-  let reverbOn    = false;
+  // GUI 引用
+  const revEnable  = select('#reverb-enable');
+  const revTime    = select('#reverb-time');
+  const decayRate  = select('#decay-rate');
+  drywetSlider     = select('#drywet');
 
-  // 一次性 hook
-  // 在 handleUploadedAudio 内调用 process()
+  const lofiEnable = select('#lofi-enable');
+  const lofiCutoff = select('#lofi-cutoff');
+  const lofiReso   = select('#lofi-reso');
 
-  // 干湿混合滑块
+  // 数值显示元素
+  const revTimeDisplay   = select('#reverb-time-display');
+  const decayRateDisplay = select('#decay-rate-display');
+  const drywetDisplay    = select('#drywet-display');
+  const lofiCutDisplay   = select('#lofi-cutoff-display');
+  const lofiResoDisplay  = select('#lofi-reso-display');
+
+  // 初始化显示
+  revTimeDisplay.html(revTime.value() + ' s');
+  decayRateDisplay.html(decayRate.value() + ' s');
+  drywetDisplay.html(nf(drywetSlider.value(), 1, 2));
+  let raw0 = Number(lofiCutoff.value());
+  lofiCutDisplay.html((20020 - raw0).toFixed(0) + ' Hz');
+  lofiResoDisplay.html(lofiReso.value() + ' Q');
+
+  // Reverb 控制 & 更新
+  revEnable.changed(() => {
+    reverb.drywet(revEnable.elt.checked ? Number(drywetSlider.value()) : 0);
+  });
+  revTime.input(() => {
+    const v = Number(revTime.value());
+    reverb.set(v, Number(decayRate.value()));
+    revTimeDisplay.html(v.toFixed(1) + ' s');
+  });
+  decayRate.input(() => {
+    const v = Number(decayRate.value());
+    reverb.set(Number(revTime.value()), v);
+    decayRateDisplay.html(v.toFixed(1) + ' s');
+  });
   drywetSlider.input(() => {
-    reverb.drywet(drywetSlider.value());
+    const v = Number(drywetSlider.value());
+    if (revEnable.elt.checked) reverb.drywet(v);
+    drywetDisplay.html(v.toFixed(2));
   });
 
-  // 混响开关：切换湿度
-  revToggle.mousePressed(() => {
-    reverbOn = !reverbOn;
-    if (reverbOn) {
-      reverb.drywet(drywetSlider.value());
-      revToggle.html('Disable Reverb');
+  // Lofi 控制 & 更新
+  lofiEnable.changed(() => {
+    if (lofiEnable.elt.checked) {
+      const raw    = Number(lofiCutoff.value());
+      const cutoff = map(raw, 20, 20000, 20000, 20);
+      lofiFilter.freq(cutoff);
+      lofiFilter.res(Number(lofiReso.value()));
     } else {
-      reverb.drywet(0);
-      revToggle.html('Enable Reverb');
+      lofiFilter.freq(22050);
+      lofiFilter.res(0.001);
     }
   });
-
-  // 实时调整参数
-  revTime.input(() => reverb.set(revTime.value(), decayRate.value()));
-  decayRate.input(() => reverb.set(revTime.value(), decayRate.value()));
+  lofiCutoff.input(() => {
+    const raw    = Number(lofiCutoff.value());
+    const displayVal = (20020 - raw).toFixed(0);
+    lofiCutDisplay.html(displayVal + ' Hz');
+    if (lofiEnable.elt.checked) {
+      const cutoff = map(raw, 20, 20000, 20000, 20);
+      lofiFilter.freq(cutoff);
+    }
+  });
+  lofiReso.input(() => {
+    const r = Number(lofiReso.value());
+    if (lofiEnable.elt.checked) lofiFilter.res(r);
+    lofiResoDisplay.html(r.toFixed(1) + ' Q');
+  });
 
   loop();
 }
@@ -90,57 +126,67 @@ function draw() {
   fft.setInput(uploadedSound);
   const spectrum = fft.analyze();
   const waveform = fft.waveform();
-  const minF = 20, maxF = 22050, pts = 256;
-  const upperH = height * 0.3;
-  const lowerY1 = height * 0.75, lowerY2 = height * 0.45;
+  const minF=20, maxF=22050, pts=256;
+  const upperH=height*0.3;
+  const low1=height*0.75, low2=height*0.45;
 
-  // 上半区：频谱折线
+  // 画频谱
   noFill(); stroke(0); strokeWeight(2);
   beginShape();
-  for (let j = 0; j < pts; j++) {
-    const f   = exp(log(minF) + (j/(pts-1)) * log(maxF/minF));
-    const idx = constrain(floor(map(f, 0, maxF, 0, spectrum.length)), 0, spectrum.length-1);
-    const amp = spectrum[idx];
-    const x   = map(log(f), log(minF), log(maxF), 0, width);
-    const y   = map(amp, 0, 255, upperH, 0);
-    vertex(x, y);
+  for (let j=0; j<pts; j++) {
+    const f   = exp(log(minF)+(j/(pts-1))*log(maxF/minF));
+    let idx    = floor(map(f,0,maxF,0,spectrum.length));
+    idx        = constrain(idx,0,spectrum.length-1);
+    const amp  = spectrum[idx];
+    const x    = map(log(f),log(minF),log(maxF),0,width);
+    const y    = map(amp,0,255,upperH,0);
+    vertex(x,y);
   }
   endShape();
 
-  // 下半区：波形折线
+  // 画波形
   noFill(); stroke(100); strokeWeight(1);
   beginShape();
-  for (let i = 0; i < waveform.length; i++) {
-    const x = map(i, 0, waveform.length, 0, width);
-    const y = map(waveform[i], -1, 1, lowerY1, lowerY2);
-    vertex(x, y);
+  for (let i=0; i<waveform.length; i++) {
+    const x = map(i,0,waveform.length,0,width);
+    const y = map(waveform[i],-1,1,low1,low2);
+    vertex(x,y);
   }
   endShape();
 
-  // 显示并同步滑块
+  // 更新进度条
   progressSlider.show();
-  progressSlider.value(uploadedSound.currentTime() / uploadedSound.duration());
+  progressSlider.value(uploadedSound.currentTime()/uploadedSound.duration());
 }
 
 function handleUploadedAudio(url) {
   if (uploadedSound) {
     uploadedSound.stop();
-    reverb.disconnect();  // 断开旧的
+    reverb.disconnect();
+    lofiFilter.disconnect();
   }
   uploadedSound = loadSound(url, () => {
+    uploadedSound.disconnect();
+
+    // Lofi chain
+    lofiFilter.process(uploadedSound);
+    lofiFilter.freq(22050);
+    lofiFilter.res(0.001);
+
+    // Reverb chain
+    const rt = Number(select('#reverb-time').value());
+    const dr = Number(select('#decay-rate').value());
+    reverb.process(lofiFilter, rt, dr);
+    reverb.drywet(0);
+
+    hp.process(reverb);
+    hp.freq(200);
+
     fft.setInput(uploadedSound);
     uploadedSound.play();
-    isFilePlaying = true;
-    isPaused      = false;
+    isFilePlaying=true; isPaused=false;
     select('#pause-play').html('⏸️ Pause');
     progressSlider.show();
-
-    // ONE-TIME process + HP filter
-    const t = select('#reverb-time').value();
-    const d = select('#decay-rate').value();
-    reverb.process(uploadedSound, t, d);
-    reverb.drywet(0);             // 初始全干声
-    hp.process(reverb);           // 高通滤波
-    hp.freq(200);
+    loop();
   });
 }

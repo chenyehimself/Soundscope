@@ -6,109 +6,153 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
   <style>
-    body {
-      margin: 0;
-      background: #fff;
-      font-family: sans-serif;
-      padding-bottom: 140px; /* 确保滑块不被遮挡 */
+    body { margin:0; background:#fff; font-family:sans-serif; padding-bottom:160px; }
+    canvas { display:block; margin:20px auto; }
+    #welcome { text-align:center; padding-top:100px; }
+    #welcome h1 { font-size:48px; margin-bottom:10px; }
+    #welcome p { font-size:18px; color:#666; margin-bottom:30px; }
+    #welcome input { font-size:16px; margin:5px; cursor:pointer; }
+    #controls { position:absolute; top:20px; left:20px; z-index:10; display:none; }
+    #controls button, #controls input[type="range"], #controls label {
+      display:block; margin-bottom:8px; font-size:14px;
     }
-    canvas {
-      display: block;
-      margin: 20px auto;
+    #upload-new,#pause-play,
+    #reverb-settings-toggle,#lofi-settings-toggle,
+    #home-btn {
+      background:#000;color:#fff;border:none;padding:6px 14px;border-radius:4px;
+      cursor:pointer;font-weight:bold;transition:background .2s;
     }
-    #welcome {
-      text-align: center;
-      padding-top: 100px;
+    #upload-new:hover,#pause-play:hover,
+    #reverb-settings-toggle:hover,#lofi-settings-toggle:hover,
+    #home-btn:hover { background:#333; }
+    .switch { position:relative;display:inline-block;width:40px;height:22px;margin-bottom:8px; }
+    .switch input{display:none;}
+    .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;
+      background:#ccc;transition:.2s;border-radius:22px;}
+    .slider:before{position:absolute;content:"";height:16px;width:16px;
+      left:3px;bottom:3px;background:#fff;transition:.2s;border-radius:50%;}
+    input:checked + .slider{background:#2196F3;}
+    input:checked + .slider:before{transform:translateX(18px);}
+    #file-input{display:none;}
+    #reverb-controls,#lofi-controls {
+      display:none; padding-left:10px; border-left:2px solid #000; margin-top:4px;
     }
-    #welcome h1 {
-      font-size: 48px;
-      margin-bottom: 10px;
-    }
-    #welcome p {
-      font-size: 18px;
-      color: #666;
-      margin-bottom: 30px;
-    }
-    #welcome input {
-      font-size: 16px;
-      margin: 5px;
-      cursor: pointer;
-    }
-    #controls {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      z-index: 10;
-      display: none;
-    }
-    #controls button,
-    #controls input[type="range"],
-    #controls label {
-      display: block;
-      margin-bottom: 10px;
+    #credit {
+      position: fixed;
+      bottom: 10px;
+      right: 20px;
       font-size: 14px;
+      color: #ccc;
+      font-style: italic;
+      z-index: 5;
+      pointer-events: none;
     }
-    #upload-new,
-    #pause-play,
-    #reverb-toggle {
-      background: #000;
-      color: #fff;
-      border: none;
-      padding: 6px 14px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.3s;
-    }
-    #upload-new:hover,
-    #pause-play:hover,
-    #reverb-toggle:hover {
-      background: #333;
-    }
-    /* 隐藏真正的文件输入，用于 Upload New File 按钮 */
-    #file-input {
-      display: none;
+    /* Home 按钮固定在右上角 */
+    #home-btn {
+      position:absolute;
+      top:20px;
+      right:20px;
+      z-index:10;
     }
   </style>
 </head>
 <body>
-  <!-- 欢迎页 -->
+<div id="credit">Created by Chenye Wang</div>
   <div id="welcome">
     <h1>🎧 SoundScope</h1>
     <p>Upload your audio to begin.</p>
     <input type="file" id="audio-upload" accept="audio/*" />
   </div>
 
-  <!-- 控件区：上传后显示 -->
   <div id="controls">
     <button id="upload-new">Upload New File</button>
     <input type="file" id="file-input" accept="audio/*" />
+
     <button id="pause-play">⏸️ Pause</button>
-    <button id="reverb-toggle">Enable Reverb</button>
-    <label for="reverb-time">Reverb Time (s)</label>
-    <input type="range" id="reverb-time" min="0" max="10" step="0.1" value="5" />
-    <label for="decay-rate">Decay Rate</label>
-    <input type="range" id="decay-rate" min="0" max="10" step="0.1" value="4" />
-    <label for="drywet">Dry / Wet Mix</label>
-    <input type="range" id="drywet" min="0" max="1" step="0.01" value="0.7" />
+
+    <!-- Reverb UI -->
+    <button id="reverb-settings-toggle">Reverb Settings</button>
+    <label class="switch">
+      <input type="checkbox" id="reverb-enable"><span class="slider"></span>
+    </label>
+    <div id="reverb-controls">
+      <label for="reverb-time">
+        Reverb Time <span id="reverb-time-display">5.0 s</span>
+      </label>
+      <input type="range" id="reverb-time" min="0" max="10" step="0.1" value="5" />
+
+      <label for="decay-rate">
+        Decay Rate <span id="decay-rate-display">4.0 s</span>
+      </label>
+      <input type="range" id="decay-rate" min="0" max="10" step="0.1" value="4" />
+
+      <label for="drywet">
+        Dry/Wet Mix <span id="drywet-display">0.70</span>
+      </label>
+      <input type="range" id="drywet" min="0" max="1" step="0.01" value="0.7" />
+    </div>
+
+    <!-- Lofi UI -->
+    <button id="lofi-settings-toggle">Lofi Settings</button>
+    <label class="switch">
+      <input type="checkbox" id="lofi-enable"><span class="slider"></span>
+    </label>
+    <div id="lofi-controls">
+      <label for="lofi-cutoff">
+        Lofi Cutoff <span id="lofi-cutoff-display">20000</span>
+      </label>
+      <input type="range" id="lofi-cutoff" min="20" max="20000" step="10" value="20" />
+
+      <label for="lofi-reso">
+        Lofi Resonance <span id="lofi-reso-display">1.0 Q</span>
+      </label>
+      <input type="range" id="lofi-reso" min="0.1" max="20" step="0.1" value="1" />
+    </div>
   </div>
+
+  <!-- Home 按钮 -->
+  <button id="home-btn">Home</button>
 
   <script src="sketch.js"></script>
   <script>
     // 初次上传
-    document.getElementById('audio-upload').addEventListener('change', e => {
+    document.getElementById('audio-upload').onchange = e => {
       handleUploadedAudio(URL.createObjectURL(e.target.files[0]));
       document.getElementById('welcome').style.display = 'none';
       document.getElementById('controls').style.display = 'block';
-    });
-    // “Upload New File” 按钮打开隐藏输入
+      document.getElementById('home-btn').style.display = 'block';
+    };
+
+    // Upload New File
     const fileInput = document.getElementById('file-input');
-    document.getElementById('upload-new').addEventListener('click', () => {
-      fileInput.click();
-    });
-    fileInput.addEventListener('change', e => {
-      handleUploadedAudio(URL.createObjectURL(e.target.files[0]));
-    });
+    document.getElementById('upload-new').onclick = () => fileInput.click();
+    fileInput.onchange = e => handleUploadedAudio(URL.createObjectURL(e.target.files[0]));
+
+    // Toggle Reverb panel
+    document.getElementById('reverb-settings-toggle').onclick = () => {
+      const p = document.getElementById('reverb-controls'),
+            b = document.getElementById('reverb-settings-toggle');
+      if (p.style.display === 'none') {
+        p.style.display = 'block'; b.textContent = 'Hide Reverb Settings';
+      } else {
+        p.style.display = 'none'; b.textContent = 'Reverb Settings';
+      }
+    };
+    // Toggle Lofi panel
+    document.getElementById('lofi-settings-toggle').onclick = () => {
+      const p = document.getElementById('lofi-controls'),
+            b = document.getElementById('lofi-settings-toggle');
+      if (p.style.display === 'none') {
+        p.style.display = 'block'; b.textContent = 'Hide Lofi Settings';
+      } else {
+        p.style.display = 'none'; b.textContent = 'Lofi Settings';
+      }
+    };
+
+    // Home 按钮 → 刷新页面
+    document.getElementById('home-btn').onclick = () => {
+      location.reload();
+    };
   </script>
 </body>
 </html>
