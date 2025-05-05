@@ -14,10 +14,10 @@ function setup() {
   fft = new p5.FFT();
   fft.smooth(0.8);
 
-  // 进度条
-  progressSlider = createSlider(0,1,0,0.001)
-    .position(width*0.2, height-60)
-    .style('width', width*0.6+'px')
+  // Progress slider (moved up to avoid overlapping credit)
+  progressSlider = createSlider(0, 1, 0, 0.001)
+    .position(width * 0.2, height - 60)
+    .style('width', width * 0.6 + 'px')
     .style('z-index','5');
   progressSlider.hide();
   progressSlider.input(() => {
@@ -31,20 +31,22 @@ function setup() {
   select('#pause-play').mousePressed(() => {
     if (!uploadedSound || !isFilePlaying) return;
     if (!isPaused) {
-      uploadedSound.pause(); isPaused=true;
-      select('#pause-play').html('▶️ Play'); noLoop();
+      uploadedSound.pause(); isPaused = true;
+      select('#pause-play').html('▶️ Play');
+      noLoop();
     } else {
-      uploadedSound.play(); isPaused=false;
-      select('#pause-play').html('⏸️ Pause'); loop();
+      uploadedSound.play(); isPaused = false;
+      select('#pause-play').html('⏸️ Pause');
+      loop();
     }
   });
 
-  // 效果器
+  // Effects
   reverb     = new p5.Reverb();
   hp         = new p5.HighPass();
   lofiFilter = new p5.LowPass();
 
-  // GUI 引用
+  // GUI refs
   const revEnable  = select('#reverb-enable');
   const revTime    = select('#reverb-time');
   const decayRate  = select('#decay-rate');
@@ -54,14 +56,14 @@ function setup() {
   const lofiCutoff = select('#lofi-cutoff');
   const lofiReso   = select('#lofi-reso');
 
-  // 数值显示元素
+  // Displays
   const revTimeDisplay   = select('#reverb-time-display');
   const decayRateDisplay = select('#decay-rate-display');
   const drywetDisplay    = select('#drywet-display');
   const lofiCutDisplay   = select('#lofi-cutoff-display');
   const lofiResoDisplay  = select('#lofi-reso-display');
 
-  // 初始化显示
+  // Initialize
   revTimeDisplay.html(revTime.value() + ' s');
   decayRateDisplay.html(decayRate.value() + ' s');
   drywetDisplay.html(nf(drywetSlider.value(), 1, 2));
@@ -69,7 +71,7 @@ function setup() {
   lofiCutDisplay.html((20020 - raw0).toFixed(0) + ' Hz');
   lofiResoDisplay.html(lofiReso.value() + ' Q');
 
-  // Reverb 控制 & 更新
+  // Reverb control
   revEnable.changed(() => {
     reverb.drywet(revEnable.elt.checked ? Number(drywetSlider.value()) : 0);
   });
@@ -89,7 +91,7 @@ function setup() {
     drywetDisplay.html(v.toFixed(2));
   });
 
-  // Lofi 控制 & 更新
+  // LoFi control
   lofiEnable.changed(() => {
     if (lofiEnable.elt.checked) {
       const raw    = Number(lofiCutoff.value());
@@ -126,37 +128,37 @@ function draw() {
   fft.setInput(uploadedSound);
   const spectrum = fft.analyze();
   const waveform = fft.waveform();
-  const minF=20, maxF=22050, pts=256;
-  const upperH=height*0.3;
-  const low1=height*0.75, low2=height*0.45;
+  const minF = 20, maxF = 22050, pts = 256;
+  const upperH = height * 0.3;
+  const low1 = height * 0.75, low2 = height * 0.45;
 
-  // 画频谱
+  // Spectrum
   noFill(); stroke(0); strokeWeight(2);
   beginShape();
-  for (let j=0; j<pts; j++) {
-    const f   = exp(log(minF)+(j/(pts-1))*log(maxF/minF));
-    let idx    = floor(map(f,0,maxF,0,spectrum.length));
-    idx        = constrain(idx,0,spectrum.length-1);
+  for (let j = 0; j < pts; j++) {
+    const f   = exp(log(minF) + (j / (pts - 1)) * log(maxF / minF));
+    let idx    = floor(map(f, 0, maxF, 0, spectrum.length));
+    idx        = constrain(idx, 0, spectrum.length - 1);
     const amp  = spectrum[idx];
-    const x    = map(log(f),log(minF),log(maxF),0,width);
-    const y    = map(amp,0,255,upperH,0);
-    vertex(x,y);
+    const x    = map(log(f), log(minF), log(maxF), 0, width);
+    const y    = map(amp, 0, 255, upperH, 0);
+    vertex(x, y);
   }
   endShape();
 
-  // 画波形
+  // Waveform
   noFill(); stroke(100); strokeWeight(1);
   beginShape();
-  for (let i=0; i<waveform.length; i++) {
-    const x = map(i,0,waveform.length,0,width);
-    const y = map(waveform[i],-1,1,low1,low2);
-    vertex(x,y);
+  for (let i = 0; i < waveform.length; i++) {
+    const x = map(i, 0, waveform.length, 0, width);
+    const y = map(waveform[i], -1, 1, low1, low2);
+    vertex(x, y);
   }
   endShape();
 
-  // 更新进度条
+  // Progress slider
   progressSlider.show();
-  progressSlider.value(uploadedSound.currentTime()/uploadedSound.duration());
+  progressSlider.value(uploadedSound.currentTime() / uploadedSound.duration());
 }
 
 function handleUploadedAudio(url) {
@@ -168,7 +170,7 @@ function handleUploadedAudio(url) {
   uploadedSound = loadSound(url, () => {
     uploadedSound.disconnect();
 
-    // Lofi chain
+    // LoFi chain
     lofiFilter.process(uploadedSound);
     lofiFilter.freq(22050);
     lofiFilter.res(0.001);
@@ -184,7 +186,8 @@ function handleUploadedAudio(url) {
 
     fft.setInput(uploadedSound);
     uploadedSound.play();
-    isFilePlaying=true; isPaused=false;
+    isFilePlaying = true;
+    isPaused      = false;
     select('#pause-play').html('⏸️ Pause');
     progressSlider.show();
     loop();
