@@ -14,7 +14,7 @@ function setup() {
   fft = new p5.FFT();
   fft.smooth(0.8);
 
-  // Progress slider
+  // Progress slider (moved up to avoid overlapping credit)
   progressSlider = createSlider(0, 1, 0, 0.001)
     .position(width * 0.2, height - 60)
     .style('width', width * 0.6 + 'px')
@@ -182,7 +182,7 @@ function handleUploadedAudio(url) {
     reverb.drywet(0);
 
     hp.process(reverb);
-    hp.freq(200);x
+    hp.freq(200);
 
     fft.setInput(uploadedSound);
     uploadedSound.play();
